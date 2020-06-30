@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+  <title>extension-card test</title>
+
+  <script src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+  <script src="../../node_modules/@polymer/test-fixture/test-fixture.js"></script>
+  <script src="../../node_modules/mocha/mocha.js"></script>
+  <script src="../../node_modules/chai/chai.js"></script>
+  <script src="../../node_modules/wct-mocha/wct-mocha.js"></script>
+
+  <script type="module" src="../../lib.js"></script>
+  <script type="module" src="../../src/extension-card/extension-card.js"></script>
+</head>
+
+<body>
+
+  <test-fixture id="BasicTestFixture">
+    <template>
+      <extension-card></extension-card>
+    </template>
+  </test-fixture>
+
+  <script type="module">
+    import { ExtensionSurvey, ExtensionSetting } from '../../lib.js';
+
+    suite('<extension-card>', function () {
+      var /** !ExtensionSurvey */ extensionSurvey;
+
+      setup(function () {
+        let /** !Map<string, ExtensionSettings> */ settings = new Map();
+
+        settings.set('*', new ExtensionSetting({
+          blocked_permissions: ['usb', 'management'],
+          runtime_blocked_hosts: ['*://*.example.com'],
+        }));
+        let /** !Map<string, !Object> */ states = new Map();
+
+        extensionSurvey = new ExtensionSurvey(settings, states);
+      });
+
+      test('formsLink basic functionality', function () {
+        const el = fixture('BasicTestFixture');
+        const extInfo = {
+          id: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          name: 'A Test Extension',
+          shortName: '',
+          description: '',
+          version: '1.2.3',
+          mayDisable: true,
+          enabled: true,
+          isApp: false,
+          type: 'extension',
+          offlineEnabled: false,
+          permissions: ['usb', 'cookies', 'management'],
+          hostPermissions: ['<all_urls>'],
+          installType: 'normal',
+        };
+        el.exceptionRequired = extensionSurvey.getExceptionRequired(extInfo);
+        el.formUrl = 'https://xxx/yyy?foo=bar';
+        el.formQueryParams = [
+          {param: 'extId', value: 'id'},
+          {param: 'p', value: 'permissions'},
+          {param: 'hp', value: 'requestedDomains', join:'\n'},
+        ];
+        el.allUrlsExceptions = ['http://example.com', 'https://example.com' ]
+        assert.equal('https://xxx/yyy?foo=bar&extId=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&p=usb&p=cookies&p=management&hp=http%3A%2F%2Fexample.com%0Ahttps%3A%2F%2Fexample.com', el.formsLink);
+      });
+    });
+  </script>
+
+
+</body>
+
+</html>

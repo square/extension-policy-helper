@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+  <title>options-page test</title>
+
+  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../node_modules/chai/chai.js"></script>
+  <script src="../node_modules/wct-mocha/wct-mocha.js"></script>
+
+  <script type="module" src="../lib.js"></script>
+</head>
+
+<body>
+
+  <script type="module">
+    import { HostPattern, ExtensionSetting, ExtensionSurvey, ExceptionRequired } from '../lib.js';
+
+    suite('HostPattern constructor', function () {
+      function testConstructor(pattern, scheme, host) {
+        test(`Parsing ${pattern} into {scheme: "${scheme}", host: "${host}""}`, function() {
+          const hp = new HostPattern(pattern);
+          assert.equal(hp.scheme, scheme);
+          assert.equal(hp.host, host);
+        });
+      }
+
+      testConstructor('http://example.com', 'http', 'example.com');
+      testConstructor('https://example.com', 'https', 'example.com');
+      testConstructor('*://example.com', '*', 'example.com');
+      testConstructor('*://*.example.com', '*', '*.example.com');
+      testConstructor('*://*.example.com/blah', '*', '*.example.com');
+      testConstructor('*://*.example.com/*', '*', '*.example.com');
+      testConstructor('*://*', '*', '*');
+      testConstructor('*://*/*', '*', '*');
+      testConstructor('<all_urls>', '*', '*');
+    });
+
+    suite('HostPattern.isOverlapping()', function () {
+      /**
+       * Run tests to check that a overlaps with b, and b overlaps with a.
+       *
+       * @param {string} a
+       * @param {string} b
+       */
+      function doesOverlap(a, b) {
+        test(`${a} overlaps with ${b}`, function () {
+          const hp1 = new HostPattern(a);
+          const hp2 = new HostPattern(b);
+          assert.isTrue(hp1.isOverlapping(hp2));
+        });
+
+        test(`${b} overlaps with ${a}`, function () {
+          const hp1 = new HostPattern(b);
+          const hp2 = new HostPattern(a);
+          assert.isTrue(hp1.isOverlapping(hp2));
+        });
+      }
+
+      /**
+       * Run tests to check that a doesn't overlap with b, and b doesn't overlap with a.
+       *
+       * @param {string} a
+       * @param {string} b
+       */
+      function doesNotOverlap(a, b) {
+        test(`${a} doesn't overlap with ${b}`, function () {
+          const hp1 = new HostPattern(a);
+          const hp2 = new HostPattern(b);
+          assert.isFalse(hp1.isOverlapping(hp2));
+        });
+
+        test(`${b} doesn't overlap with ${a}`, function () {
+          const hp1 = new HostPattern(b);
+          const hp2 = new HostPattern(a);
+          assert.isFalse(hp1.isOverlapping(hp2));
+        });
+      }
+
+
+      doesOverlap('*://*.example.com', '*://*.example.com/*');
+      doesNotOverlap('http://example.com', 'https://example.com');
+      doesOverlap('*://example.com', 'https://example.com');
+      doesOverlap('*://example.com', 'http://example.com');
+      doesOverlap('*://*.example.com', 'https://foo.example.com');
+      doesOverlap('*://*.example.com', 'https://example.com');
+      doesNotOverlap('*://*.example.com', '*://*.anotherexample.com');
+      doesOverlap('*://*.example.com', '<all_urls>');
+      doesOverlap('<all_urls>', 'http://www.example.com');
+    });
+
+    suite('ExtensionSurvey.getExceptionRequired()', function() {
+      let /** ExtensionSurvey */ es;
+
+      setup(function() {
+        const /** !Map<string, ExtensionSetting> */ extensionSettings = new Map();
+        const /** !Map<string, object */ extensionStates = new Map();
+
+        extensionSettings.set('*', new ExtensionSetting({
+          blocked_permissions: ['management', 'clipboardRead', 'proxy'],
+          runtime_blocked_hosts: ['*://*.example.com']
+        }));
+
+        extensionSettings.set('test1', new ExtensionSetting({
+          allowed_permissions: ['proxy'],
+          runtime_allowed_hosts: ['*://foo.example.com'],
+        }))
+
+        es = new ExtensionSurvey(extensionSettings, extensionStates);
+      });
+
+      test('test1 is allowed proxy permission', function() {
+        const er = es.getExceptionRequired({
+          id: 'test1',
+          permissions: ['proxy'],
+          hostPermissions: [],
+        });
+
+        assert.isFalse(er.isExceptionRequired());
+      });
+
+      test('test2 is not allowed proxy permission', function() {
+        const er = es.getExceptionRequired({
+          id: 'test2',
+          permissions: ['proxy'],
+          hostPermissions: [],
+        });
+
+        assert.isTrue(er.isExceptionRequired());
+      });
+
+      test('test1 is allowed clipboardWrite permission', function() {
+        const er = es.getExceptionRequired({
+          id: 'test1',
+          permissions: ['clipboardWrite'],
+          hostPermissions: [],
+        });
+
+        assert.isFalse(er.isExceptionRequired());
+      });
+
+      test('test1 is not allowed management permission', function() {
+        const er = es.getExceptionRequired({
+          id: 'test1',
+          permissions: ['management'],
+          hostPermissions: [],
+        });
+
+        assert.isTrue(er.isExceptionRequired());
+      });
+
+    });
+  </script>
+
+</body>
+
+</html>

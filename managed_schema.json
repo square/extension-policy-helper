@@ -1,0 +1,146 @@
+{
+  "type": "object",
+  "properties": {
+    "ExtensionSettings": {
+      "title": "Copy of the extensionSettings Chrome policy key",
+      "type": "object",
+      "properties": {
+        "*": {
+          "type": "object",
+          "properties": {
+            "installation_mode": {
+              "type": "string"
+            },
+            "update_url": {
+              "type": "string"
+            },
+            "minimum_version_required": {
+              "type": "string"
+            },
+            "blocked_install_message": {
+              "type": "string"
+            },
+            "allowed_permissions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "blocked_permissions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "install_sources": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allowed_types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "runtime_blocked_hosts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "runtime_allowed_hosts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "installation_mode": {
+            "type": "string"
+          },
+          "update_url": {
+            "type": "string"
+          },
+          "minimum_version_required": {
+            "type": "string"
+          },
+          "blocked_install_message": {
+            "type": "string"
+          },
+          "allowed_permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "blocked_permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "runtime_blocked_hosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "runtime_allowed_hosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "helpItems": {
+      "title": "Items to display on the Help page",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "title": "Title for the help item",
+            "type": "string"
+          },
+          "body": {
+            "title": "Body for the help item (markdown)",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "formUrl": {
+      "title": "URL of exception request form",
+      "type": "string"
+    },
+    "formQueryParams": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "param": {
+            "title": "Parameter name to append to form url query string",
+            "type": "string"
+          },
+          "value": {
+            "title": "Fill parameter value from item",
+            "type": "string"
+          },
+          "join": {
+            "title": "Join array value with this character",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

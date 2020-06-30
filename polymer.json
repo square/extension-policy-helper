@@ -1,0 +1,18 @@
+{
+  "npm": true,
+  "lint": {
+    "rules": [
+      "polymer-3"
+    ]
+  },
+  "entrypoint": "options.html",
+  "sources": [ "lib.js", "popup.html", "src/**/*" ],
+  "extraDependencies": [
+    "background.js",
+    "background.html",
+    "icon*.png",
+    "managed_schema.json",
+    "manifest.json",
+    "node_modules/@polymer/font-roboto/fonts/**"
+  ]
+}
